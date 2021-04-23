@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/logo.svg</file>
+        <file>icons/deepin/builtin/dark/icons/code_count_48px.svg</file>
+        <file>icons/deepin/builtin/light/icons/code_count_48px.svg</file>
+    </qresource>
+</RCC>

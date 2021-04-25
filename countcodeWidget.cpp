@@ -2,7 +2,6 @@
 #include "treeview.h"
 #include "StyleLabel.h"
 
-#include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
 #include <QGridLayout>
@@ -13,6 +12,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QStandardItemModel>
+#include <QtConcurrent>
 
 const QString fileFilter = "*.h *.cpp *.c *.cs *.java *.js";
 
@@ -345,7 +345,7 @@ void CountCodeWidget::onOpenFile()
     if (files.size() > 0) {
         onClearData();
         m_edit->setText(getElidedText(m_edit->font(), files.join("|"), m_edit->width()));
-        countCode(files);
+        QtConcurrent::run(this, QOverload<const QStringList &>::of(&CountCodeWidget::countCode), files);
     }
 }
 
@@ -357,7 +357,7 @@ void CountCodeWidget::onOpenPath()
         m_dirEdit->setText(getElidedText(m_dirEdit->font(), path, m_dirEdit->width()));
         listFile.clear();
         countCode(path);
-        countCode(listFile);
+        QtConcurrent::run(this, QOverload<const QStringList &>::of(&CountCodeWidget::countCode), listFile);
     }
 }
 

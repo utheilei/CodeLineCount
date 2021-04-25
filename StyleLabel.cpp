@@ -1,3 +1,24 @@
+/*
+* Copyright (C) 2021 ~ 2030 Uniontech Software Technology Co.,Ltd.
+*
+* Author:     helei <helei@uniontech.com>
+*
+* Maintainer: helei <helei@uniontech.com>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "StyleLabel.h"
 
 #include <DApplicationHelper>
@@ -35,12 +56,12 @@ void StyleLabel::paintEvent(QPaintEvent *event)
     Q_UNUSED(event)
     QStyleOptionFrame opt;
     initStyleOption(&opt);
-    QPainter p(this);
+    QPainter painter(this);
 
-    const DPalette &dp = DApplicationHelper::instance()->palette(this);
-    p.setBackground(dp.brush(QPalette::Button));
-    p.setPen(QPen(dp.frameBorder(), opt.lineWidth));
-    style()->drawControl(QStyle::CE_ShapedFrame, &opt, &p, this);
+    const DPalette &dpalette = DApplicationHelper::instance()->palette(this);
+    painter.setBackground(dpalette.brush(QPalette::Button));
+    painter.setPen(QPen(dpalette.frameBorder(), opt.lineWidth));
+    style()->drawControl(QStyle::CE_ShapedFrame, &opt, &painter, this);
 
     QLabel::paintEvent(event);
 }

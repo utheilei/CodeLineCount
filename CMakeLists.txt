@@ -10,8 +10,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 # Find the library
 find_package(PkgConfig REQUIRED)
-find_package(Qt5Widgets REQUIRED)
 find_package(DtkWidget REQUIRED)
+find_package(Qt5 COMPONENTS
+    Core
+    Gui
+    Widgets
+    Concurrent
+REQUIRED)
+
+set(Qt_LIBS
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Widgets
+    Qt5::Concurrent
+)
 
 add_executable(${PROJECT_NAME}
     "main.cpp"
@@ -32,5 +44,5 @@ add_executable(${PROJECT_NAME}
 target_include_directories(CodeLineCount PUBLIC ${DtkWidget_INCLUDE_DIRS} ${OBJECT_BINARY_DIR})
 target_link_libraries(CodeLineCount
     ${DtkWidget_LIBRARIES}
-    ${Qt5Widgets_LIBRARIES}
+    ${Qt_LIBS}
 )

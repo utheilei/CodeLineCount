@@ -10,10 +10,12 @@
 #include <DStyleHelper>
 #include <DStyle>
 
+DWIDGET_USE_NAMESPACE
+
 static const int kSpacingMargin = 4;
 
 HeaderView::HeaderView(Qt::Orientation orientation, QWidget *parent)
-    : DHeaderView(orientation, parent)
+    : QHeaderView(orientation, parent)
 {
     viewport()->setAutoFillBackground(false);
     setStretchLastSection(true);
@@ -113,13 +115,13 @@ void HeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalI
 void HeaderView::focusInEvent(QFocusEvent *event)
 {
     m_reson = event->reason();
-    DHeaderView::focusInEvent(event);
+    QHeaderView::focusInEvent(event);
 }
 
 void HeaderView::mouseMoveEvent(QMouseEvent *event)
 {
     emit headerViewMouseMove();
-    DHeaderView::mouseMoveEvent(event);
+    QHeaderView::mouseMoveEvent(event);
 }
 
 void HeaderView::paintEvent(QPaintEvent *event)
@@ -156,7 +158,7 @@ void HeaderView::paintEvent(QPaintEvent *event)
 
     painter.fillPath(clipPath, bgBrush);
 
-    DHeaderView::paintEvent(event);
+    QHeaderView::paintEvent(event);
     painter.restore();
     // draw focus
     if (hasFocus() && (m_reson == Qt::TabFocusReason || m_reson == Qt::BacktabFocusReason)) {

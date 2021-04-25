@@ -1,11 +1,9 @@
 #ifndef HEADERVIEW_H
 #define HEADERVIEW_H
 
-#include <DHeaderView>
+#include <QHeaderView>
 
-DWIDGET_USE_NAMESPACE
-
-class HeaderView : public DHeaderView
+class HeaderView : public QHeaderView
 {
     Q_OBJECT
 
@@ -28,7 +26,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
 private:
-    int m_spacing {1};
+    int m_spacing = 1;
     Qt::FocusReason m_reson;
 };
 

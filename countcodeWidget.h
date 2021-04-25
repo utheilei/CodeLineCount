@@ -1,5 +1,5 @@
-﻿#ifndef FRMCOUNTCODE_H
-#define FRMCOUNTCODE_H
+﻿#ifndef COUNTCODEWIDGET_H
+#define COUNTCODEWIDGET_H
 
 #include <QWidget>
 #include <DSuggestButton>
@@ -60,4 +60,4 @@ private:
     QLabel *m_labPercentBlank = Q_NULLPTR;
 };
 
-#endif // FRMCOUNTCODE_H
+#endif // COUNTCODEWIDGET_H

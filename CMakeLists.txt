@@ -39,6 +39,12 @@ add_executable(${PROJECT_NAME}
     "mainwindow.cpp"
     "StyleLabel.h"
     "StyleLabel.cpp"
+    "StyleButton.h"
+    "StyleButton.cpp"
+    "localcountcodeWidget.h"
+    "localcountcodeWidget.cpp"
+    "gitcountcodeWidget.h"
+    "gitcountcodeWidget.cpp"
     resources.qrc)
 
 target_include_directories(CodeLineCount PUBLIC ${DtkWidget_INCLUDE_DIRS} ${OBJECT_BINARY_DIR})

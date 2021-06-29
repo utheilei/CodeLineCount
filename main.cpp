@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     a.setApplicationDescription("This is a code line count tool.");
 
     MainWindow w;
-    w.setMinimumSize(900, 640);
+    w.setMinimumSize(1200, 800);
     w.show();
 
     Dtk::Widget::moveToCenter(&w);

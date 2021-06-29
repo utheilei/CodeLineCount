@@ -10,6 +10,7 @@
 #include <QDir>
 
 const QStringList fileFilter = {"h", "cpp", "c"};
+const QString fileName = "/countCode.txt";
 
 GitCountCodeWidget::GitCountCodeWidget(QWidget *parent)
     : CountCodeWidget(parent)
@@ -56,14 +57,14 @@ void GitCountCodeWidget::initBottomWidget()
     m_codeCountLabel = new StyleLabel(this);
     m_codeCountLabel->setMinimumWidth(80);
 
-    QLabel *dirLabel = new QLabel("目录",this);
-    dirLabel->setMinimumWidth(60);
+    QLabel *dirLabel = new QLabel("git代码目录",this);
+    dirLabel->setMinimumWidth(120);
     dirLabel->setAlignment(Qt::AlignCenter);
-    QLabel *label = new QLabel("作者",this);
-    label->setMinimumWidth(60);
+    QLabel *label = new QLabel("git提交人",this);
+    label->setMinimumWidth(120);
     label->setAlignment(Qt::AlignCenter);
-    QLabel *timeLabel = new QLabel("时间", this);
-    timeLabel->setMinimumWidth(60);
+    QLabel *timeLabel = new QLabel("代码提交时间段", this);
+    timeLabel->setMinimumWidth(120);
     timeLabel->setAlignment(Qt::AlignCenter);
 
     m_edit = new QLineEdit(this);
@@ -147,11 +148,11 @@ void GitCountCodeWidget::parseFile()
     quint32 newLines = 0;
     quint32 deleteLines = 0;
 
-    QString fileName = m_dirEdit->text() + "/countCode.txt";
-    if (!QFile::exists(fileName))
+    QString filePath = QDir::homePath() + fileName;
+    if (!QFile::exists(filePath))
         return;
 
-    QFile file(fileName);
+    QFile file(filePath);
 
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
         qInfo() << "======" << "file open failed";
@@ -215,8 +216,8 @@ void GitCountCodeWidget::onCountCode()
     QDir dir;
     dir.setCurrent(m_dirEdit->text());
 
-    if (QFile::exists("countCode.txt"))
-        QFile::remove("countCode.txt");
+    if (QFile::exists(QDir::homePath() + fileName))
+        QFile::remove(QDir::homePath() + fileName);
 
     QString author = m_edit->text().trimmed();
     QStringList time = m_timeEdit->text().split(",");
@@ -224,7 +225,7 @@ void GitCountCodeWidget::onCountCode()
         return;
 
     QString cmd = QString("git log --author='%1' --since='%2' --until='%3' --pretty=tformat: --numstat >> %4/countCode.txt")
-                  .arg(author).arg(time[0]).arg(time[1]).arg(m_dirEdit->text());
+                  .arg(author).arg(time[0]).arg(time[1]).arg(QDir::homePath());
 
     int res = system(cmd.toLatin1().data());
 

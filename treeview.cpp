@@ -29,6 +29,7 @@ void TreeView::initUI()
     setFrameShape(QFrame::NoFrame); // 无边框设置
     setSelectionMode(QAbstractItemView::ExtendedSelection); // 设置支持多行选择（shift/ctrl）
     setSelectionBehavior(QAbstractItemView::SelectRows); // 设置点击选中整行
+    setEditTriggers(QAbstractItemView::NoEditTriggers);
     setRootIsDecorated(false); // 设置降序
     setItemsExpandable(false); // 可展开项
     viewport()->setAutoFillBackground(false);

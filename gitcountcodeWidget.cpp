@@ -8,6 +8,8 @@
 #include <QStandardItemModel>
 #include <QFileDialog>
 #include <QDir>
+#include <QDateEdit>
+#include <QCalendarWidget>
 
 const QStringList fileFilter = {"h", "cpp", "c"};
 const QString fileName = "/countCode.txt";
@@ -70,10 +72,17 @@ void GitCountCodeWidget::initBottomWidget()
     m_edit = new QLineEdit(this);
     m_dirEdit = new QLineEdit(this);
     m_dirEdit->setReadOnly(true);
-    m_timeEdit = new QLineEdit(this);
+
+    m_countBtn = new DSuggestButton("统计数据", this);
+    m_startDateEdit = createDateEdit();
+    m_endateEdit = createDateEdit();
+    QHBoxLayout *hLayout = new QHBoxLayout;
+    hLayout->addWidget(m_startDateEdit);
+    hLayout->addWidget(m_endateEdit);
+    hLayout->addWidget(m_countBtn);
 
     DSuggestButton *openDirBtn = new DSuggestButton("打开目录", this);
-    DSuggestButton *countBtn = new DSuggestButton("统计数据", this);
+    DSuggestButton *selectBtn = new DSuggestButton("选中统计", this);
     DSuggestButton *clearBtn = new DSuggestButton("清除数据", this);
 
     layout->addWidget(fileLabel, 0 , 0);
@@ -85,16 +94,17 @@ void GitCountCodeWidget::initBottomWidget()
     layout->addWidget(m_sizeCountLabel, 1 , 1);
     layout->addWidget(label, 1 , 2);
     layout->addWidget(m_edit, 1 , 3);
-    layout->addWidget(countBtn, 1 , 4);
+    layout->addWidget(selectBtn, 1 , 4);
     layout->addWidget(rowsLabel, 2 , 0);
     layout->addWidget(m_codeCountLabel, 2 , 1);
     layout->addWidget(timeLabel, 2 , 2);
-    layout->addWidget(m_timeEdit, 2 , 3);
+    layout->addLayout(hLayout, 2 , 3);
     layout->addWidget(clearBtn, 2 , 4);
 
     connect(openDirBtn, &QPushButton::clicked, this, &GitCountCodeWidget::onOpenPath);
-    connect(countBtn, &QPushButton::clicked, this, &GitCountCodeWidget::onCountCode);
+    connect(m_countBtn, &QPushButton::clicked, this, &GitCountCodeWidget::onCountCode);
     connect(clearBtn, &QPushButton::clicked, this, &GitCountCodeWidget::onClearData);
+    connect(selectBtn, &QPushButton::clicked, this, &GitCountCodeWidget::onCountSelectedData);
 }
 
 void GitCountCodeWidget::deleteAllData()
@@ -126,9 +136,30 @@ void GitCountCodeWidget::onOpenPath()
     QString path = QFileDialog::getExistingDirectory(this, "选择目录", "./",  QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (!path.isEmpty()) {
         onClearData();
-        m_timeEdit->setText("2021-01-01,2021-06-30");
+        m_countBtn->setEnabled(true);
         m_dirEdit->setText(getElidedText(m_dirEdit->font(), path, m_dirEdit->width()));
     }
+}
+
+void GitCountCodeWidget::onCountSelectedData()
+{
+    QModelIndexList indexList = m_treeView->selectionModel()->selectedIndexes();
+    if (indexList.isEmpty())
+        return;
+
+    quint32 newLines = 0;
+    quint32 deleteLines = 0;
+
+    foreach (auto modelIndex, indexList) {
+        if (modelIndex.column() == 4)
+            newLines += modelIndex.data().toInt();
+        else if (modelIndex.column() == 5)
+            deleteLines += modelIndex.data().toInt();
+    }
+
+    m_fileCountLabel->setText(QString::number(newLines));
+    m_sizeCountLabel->setText(QString::number(deleteLines));
+    m_codeCountLabel->setText(QString::number(newLines - deleteLines));
 }
 
 void GitCountCodeWidget::onClearData()
@@ -168,13 +199,14 @@ void GitCountCodeWidget::parseFile()
         QFileInfo info(lineStr[2]);
         if (fileFilter.contains(info.suffix())) {
             addItem(info, lineStr[0].toInt(), lineStr[1].toInt());
+            newLines  += lineStr[0].toInt();
+            deleteLines  += lineStr[1].toInt();
         }
-
-        newLines  += lineStr[0].toInt();
-        deleteLines  += lineStr[1].toInt();
     }
 
     file.close();
+
+    m_countBtn->setEnabled(false);
 
     m_fileCountLabel->setText(QString::number(newLines));
     m_sizeCountLabel->setText(QString::number(deleteLines));
@@ -183,34 +215,56 @@ void GitCountCodeWidget::parseFile()
 
 void GitCountCodeWidget::addItem(QFileInfo info, int newLine, int deleteLine)
 {
-    QStandardItem *itemName = new QStandardItem;
-    itemName->setText(info.fileName());
-    itemName->setIcon(getIcon(info.filePath()));
+    auto itemList = m_model->findItems(info.fileName());
+    if (!itemList.isEmpty()) {
+        QStandardItem *totalItem = m_model->item(itemList[0]->row(), 3);
+        QStandardItem *newItem = m_model->item(itemList[0]->row(), 4);
+        QStandardItem *deleteItem = m_model->item(itemList[0]->row(), 5);
+        newLine += newItem->text().toInt();
+        deleteLine += deleteItem->text().toInt();
+        totalItem->setText(QString::number(newLine - deleteLine));
+        newItem->setText(QString::number(newLine));
+        deleteItem->setText(QString::number(deleteLine));
+    } else {
+        QStandardItem *itemName = new QStandardItem;
+        itemName->setText(info.fileName());
+        itemName->setIcon(getIcon(info.filePath()));
 
-    QStandardItem *itemSuffix = new QStandardItem;
-    itemSuffix->setText(info.suffix());
+        QStandardItem *itemSuffix = new QStandardItem;
+        itemSuffix->setText(info.suffix());
 
-    QStandardItem *itemSize = new QStandardItem;
-    itemSize->setText(QString::number(info.size()));
+        QStandardItem *itemSize = new QStandardItem;
+        itemSize->setText(QString::number(info.size()));
 
-    QStandardItem *itemLine = new QStandardItem;
-    itemLine->setText(QString::number(newLine - deleteLine));
+        QStandardItem *itemLine = new QStandardItem;
+        itemLine->setText(QString::number(newLine - deleteLine));
 
-    QStandardItem *itemCode = new QStandardItem;
-    itemCode->setText(QString::number(newLine));
+        QStandardItem *itemCode = new QStandardItem;
+        itemCode->setText(QString::number(newLine));
 
-    QStandardItem *itemNote = new QStandardItem;
-    itemNote->setText(QString::number(deleteLine));
+        QStandardItem *itemNote = new QStandardItem;
+        itemNote->setText(QString::number(deleteLine));
 
-    QList<QStandardItem *> listItem;
-    listItem << itemName << itemSuffix << itemSize << itemLine << itemCode << itemNote;
+        QList<QStandardItem *> listItem;
+        listItem << itemName << itemSuffix << itemSize << itemLine << itemCode << itemNote;
 
-    m_model->appendRow(listItem);
+        m_model->appendRow(listItem);
+    }
+}
+
+QDateEdit *GitCountCodeWidget::createDateEdit()
+{
+    QDateEdit *dateEdit = new QDateEdit(this);
+    dateEdit->setCalendarPopup(true);
+    dateEdit->setDisplayFormat("yyyy-MM-dd");
+    dateEdit->setDate(QDate::currentDate());
+
+    return dateEdit;
 }
 
 void GitCountCodeWidget::onCountCode()
 {
-    if (m_dirEdit->text().isEmpty() || m_edit->text().isEmpty() || m_timeEdit->text().isEmpty())
+    if (m_dirEdit->text().isEmpty() || m_edit->text().isEmpty())
         return;
 
     QDir dir;
@@ -220,12 +274,10 @@ void GitCountCodeWidget::onCountCode()
         QFile::remove(QDir::homePath() + fileName);
 
     QString author = m_edit->text().trimmed();
-    QStringList time = m_timeEdit->text().split(",");
-    if (time.size() < 2)
-        return;
 
     QString cmd = QString("git log --author='%1' --since='%2' --until='%3' --pretty=tformat: --numstat >> %4/countCode.txt")
-                  .arg(author).arg(time[0]).arg(time[1]).arg(QDir::homePath());
+                  .arg(author).arg(m_startDateEdit->date().toString("yyyy-MM-dd"))
+                  .arg(m_endateEdit->date().toString("yyyy-MM-dd")).arg(QDir::homePath());
 
     int res = system(cmd.toLatin1().data());
 

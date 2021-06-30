@@ -11,6 +11,7 @@ class QLineEdit;
 class QStandardItemModel;
 class StyleLabel;
 class QProcess;
+class QDateEdit;
 
 DWIDGET_USE_NAMESPACE
 
@@ -33,19 +34,25 @@ private:
     void parseFile();
     void addItem(QFileInfo info, int newLine, int deleteLine);
 
+    QDateEdit *createDateEdit();
+
 private slots:
     void onCountCode();
     void onOpenPath();
+    void onCountSelectedData();
 
 private:
     QLineEdit *m_edit = Q_NULLPTR;
     QLineEdit *m_dirEdit = Q_NULLPTR;
-    QLineEdit *m_timeEdit = Q_NULLPTR;
+    QDateEdit *m_startDateEdit = Q_NULLPTR;
+    QDateEdit *m_endateEdit = Q_NULLPTR;
     QStandardItemModel *m_model = Q_NULLPTR;
 
     StyleLabel *m_fileCountLabel = Q_NULLPTR;
     StyleLabel *m_codeCountLabel = Q_NULLPTR;
     StyleLabel *m_sizeCountLabel = Q_NULLPTR;
+
+    DSuggestButton *m_countBtn = Q_NULLPTR;
 };
 
 #endif // GITCOUNTCODEWIDGET_H
